@@ -537,8 +537,8 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, TileType,
                             sycl::access::decorated::legacy>(0, reg);
       out_vec *= alpha_;
 
-    out_vec.template store<address_t::global_space, sycl::access::decorated::legacy>(
-        0, out_ptr);
+      out_vec.template store<address_t::global_space,
+                             sycl::access::decorated::legacy>(0, out_ptr);
     } else {
       out_vec.template load<address_t::private_space,
                             sycl::access::decorated::legacy>(

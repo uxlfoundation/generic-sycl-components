@@ -118,8 +118,7 @@ class vec_complex {
 
   // Load
   template <address_t Space, decorated_t DecorateAddress>
-  void load(size_t Offset,
-            const DataT* Ptr) {
+  void load(size_t Offset, const DataT *Ptr) {
     m_Data = *(Ptr + Offset * NumElements);
   }
 
@@ -132,8 +131,7 @@ class vec_complex {
 
   // Store
   template <address_t Space, decorated_t DecorateAddress>
-  void store(size_t Offset,
-             DataT* Ptr) const {
+  void store(size_t Offset, DataT *Ptr) const {
     *(Ptr + Offset * NumElements) = m_Data;
   }
 };
