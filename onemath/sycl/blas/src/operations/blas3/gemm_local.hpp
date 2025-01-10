@@ -527,12 +527,28 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, TileType,
       element_t *reg, OutputPointerType out_ptr) {
     vector_out_t out_vec{};
 
-    out_vec.template load<address_t::private_space>(
-        0, sycl::multi_ptr<const element_t, address_t::private_space>(reg));
-    out_vec *= alpha_;
+    if constexpr (std::is_same_v<
+                      element_t,
+                      sycl::ext::oneapi::experimental::complex<float>> ||
+                  std::is_same_v<
+                      element_t,
+                      sycl::ext::oneapi::experimental::complex<double>>) {
+      out_vec.template load<address_t::private_space,
+                            sycl::access::decorated::legacy>(0, reg);
+      out_vec *= alpha_;
 
-    out_vec.template store<address_t::global_space>(
-        0, sycl::multi_ptr<element_t, address_t::global_space>(out_ptr));
+    out_vec.template store<address_t::global_space, sycl::access::decorated::legacy>(
+        0, out_ptr);
+    } else {
+      out_vec.template load<address_t::private_space,
+                            sycl::access::decorated::legacy>(
+          0, sycl::multi_ptr<const element_t, address_t::private_space>(reg));
+      out_vec *= alpha_;
+
+      out_vec.template store<address_t::global_space,
+                             sycl::access::decorated::legacy>(
+          0, sycl::multi_ptr<element_t, address_t::global_space>(out_ptr));
+    }
   }
   /*!
    * @brief Store the computed gemm result to the C matrix

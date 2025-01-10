@@ -116,10 +116,24 @@ class vec_complex {
     m_Data = *(Ptr + Offset * NumElements);
   }
 
+  // Load
+  template <address_t Space, decorated_t DecorateAddress>
+  void load(size_t Offset,
+            const DataT* Ptr) {
+    m_Data = *(Ptr + Offset * NumElements);
+  }
+
   // Store
   template <address_t Space, decorated_t DecorateAddress>
   void store(size_t Offset,
              sycl::multi_ptr<DataT, Space, DecorateAddress> Ptr) const {
+    *(Ptr + Offset * NumElements) = m_Data;
+  }
+
+  // Store
+  template <address_t Space, decorated_t DecorateAddress>
+  void store(size_t Offset,
+             DataT* Ptr) const {
     *(Ptr + Offset * NumElements) = m_Data;
   }
 };
