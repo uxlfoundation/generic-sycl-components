@@ -527,6 +527,9 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, TileType,
       element_t *reg, OutputPointerType out_ptr) {
     vector_out_t out_vec{};
 
+    // This if-statement is necessary starting from late 2024 nightly, because
+    // an update made casting raw pointers of sycl::complex to multi_ptr
+    // ambiguous.
     if constexpr (std::is_same_v<
                       element_t,
                       sycl::ext::oneapi::experimental::complex<float>> ||
