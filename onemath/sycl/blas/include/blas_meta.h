@@ -30,10 +30,10 @@
 #ifdef BLAS_ENABLE_COMPLEX
 #define SYCL_EXT_ONEAPI_COMPLEX
 #include <complex>
-#if __has_include(<ext/oneapi/experimental/complex/complex.hpp>)
-#include <ext/oneapi/experimental/complex/complex.hpp>
+#if __has_include(<sycl/ext/oneapi/experimental/complex/complex.hpp>)
+#include <sycl/ext/oneapi/experimental/complex/complex.hpp>
 #else
-#include <ext/oneapi/experimental/sycl_complex.hpp>
+#include <sycl/ext/oneapi/experimental/sycl_complex.hpp>
 #endif
 #endif
 
