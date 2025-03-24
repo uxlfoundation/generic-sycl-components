@@ -88,27 +88,6 @@ using add_const = typename std::conditional<
         typename std::remove_pointer<container_t>::type>::type>::type,
     container_t>::type;
 
-template <typename container_t>
-typename std::enable_if<std::is_same<
-    container_t, typename AllocHelper<typename ValueType<container_t>::type,
-                                      AllocType::usm>::type>::value>::type
-enqueue_deallocate(std::vector<sycl::event> dependencies, container_t mem,
-                   sycl::queue q) {
-#ifdef SB_ENABLE_USM
-  auto event = q.submit([&](sycl::handler &cgh) {
-    cgh.depends_on(dependencies);
-    cgh.host_task([=]() { sycl::free(mem, q); });
-  });
-#endif
-  return;
-}
-
-template <typename container_t>
-typename std::enable_if<std::is_same<
-    container_t, typename AllocHelper<typename ValueType<container_t>::type,
-                                      AllocType::buffer>::type>::value>::type
-enqueue_deallocate(std::vector<sycl::event>, container_t mem, sycl::queue q) {}
-
 inline bool has_local_memory(sycl::queue &q) {
   return (
       q.get_device().template get_info<sycl::info::device::local_mem_type>() ==

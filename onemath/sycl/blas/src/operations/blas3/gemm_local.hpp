@@ -527,6 +527,7 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, TileType,
       element_t *reg, OutputPointerType out_ptr) {
     vector_out_t out_vec{};
 
+#ifdef BLAS_ENABLE_COMPLEX
     // This if-statement is necessary starting from late 2024 nightly, because
     // an update made casting raw pointers of sycl::complex to multi_ptr
     // ambiguous.
@@ -542,14 +543,26 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, TileType,
 
       out_vec.template store<address_t::global_space,
                              sycl::access::decorated::legacy>(0, out_ptr);
-    } else {
+    } else
+#endif
+    {
+#ifdef __ADAPTIVECPP__
+      // AdaptiveCpp 24.10 doesn't support IsDecorated template parameter here
+      out_vec.template load<address_t::private_space>(
+#else
       out_vec.template load<address_t::private_space,
                             sycl::access::decorated::legacy>(
+#endif
           0, sycl::multi_ptr<const element_t, address_t::private_space>(reg));
       out_vec *= alpha_;
 
+#ifdef __ADAPTIVECPP__
+      // AdaptiveCpp 24.10 doesn't support IsDecorated template parameter here
+      out_vec.template store<address_t::global_space>(
+#else
       out_vec.template store<address_t::global_space,
                              sycl::access::decorated::legacy>(
+#endif
           0, sycl::multi_ptr<element_t, address_t::global_space>(out_ptr));
     }
   }

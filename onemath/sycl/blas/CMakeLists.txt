@@ -65,10 +65,9 @@ option(BLAS_ENABLE_EXTENSIONS "Whether to enable BLAS extensions" ON)
 option(BLAS_ENABLE_COMPLEX "Whether to enable complex data type for GEMM" ON)
 option(BLAS_ENABLE_HALF "Whether to enable sycl::half data type for supported operators" ON)
 
-if (SYCL_COMPILER MATCHES "adaptivecpp") 
+if (SYCL_COMPILER MATCHES "adaptivecpp" OR ${CMAKE_CXX_COMPILER} MATCHES "acpp|syclcc")
   if(BLAS_ENABLE_COMPLEX)
-    message(STATUS "SYCL Complex data is not supported on AdaptiveCpp/hipSYCL. Complex
-            data type is disabled")
+    message(STATUS "SYCL Complex data is not supported on AdaptiveCpp/hipSYCL. Complex data type is disabled")
     set(BLAS_ENABLE_COMPLEX OFF)
   endif()
 endif()
