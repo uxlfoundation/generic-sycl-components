@@ -113,7 +113,7 @@ if((${CMAKE_CXX_COMPILER_ID} STREQUAL "IntelLLVM") AND NOT
 endif()
 
 include(CMakePackageConfigHelpers)
-set(version_file "${CMAKE_CURRENT_BINARY_DIR}/cmake/onemath_sycl_blas-version.cmake")
+set(version_file "${CMAKE_CURRENT_BINARY_DIR}/cmake/onemath_sycl_blas-config-version.cmake")
 set(config_file "${CMAKE_CURRENT_BINARY_DIR}/cmake/onemath_sycl_blas-config.cmake")
 set(targets_name "onemath_sycl_blas-targets")
 write_basic_package_version_file(${version_file}
