@@ -21,7 +21,7 @@
 # *
 # **************************************************************************/
 cmake_minimum_required(VERSION 3.4.3)
-project(blas VERSION 0.1.0 LANGUAGES CXX)
+project(blas VERSION 0.2.0 LANGUAGES CXX)
 
 if(POLICY CMP0074)
   cmake_policy(SET CMP0074 NEW)
