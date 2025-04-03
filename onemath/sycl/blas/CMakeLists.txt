@@ -21,7 +21,7 @@
 # *
 # **************************************************************************/
 cmake_minimum_required(VERSION 3.4.3)
-project(blas VERSION 0.1.0 LANGUAGES CXX)
+project(blas VERSION 0.2.0 LANGUAGES CXX)
 
 if(POLICY CMP0074)
   cmake_policy(SET CMP0074 NEW)
@@ -63,13 +63,17 @@ set(ONEMATH_SYCL_BLAS_INSTALL_SRC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/
 
 option(BLAS_ENABLE_EXTENSIONS "Whether to enable BLAS extensions" ON)
 option(BLAS_ENABLE_COMPLEX "Whether to enable complex data type for GEMM" ON)
+option(BLAS_ENABLE_USM "Whether to enable USM API" ON)
 option(BLAS_ENABLE_HALF "Whether to enable sycl::half data type for supported operators" ON)
 
-if (SYCL_COMPILER MATCHES "adaptivecpp") 
+if (SYCL_COMPILER MATCHES "adaptivecpp" OR ${CMAKE_CXX_COMPILER} MATCHES "acpp|syclcc")
   if(BLAS_ENABLE_COMPLEX)
-    message(STATUS "SYCL Complex data is not supported on AdaptiveCpp/hipSYCL. Complex
-            data type is disabled")
+    message(STATUS "SYCL Complex data is not supported on AdaptiveCpp/hipSYCL. Complex data type is disabled")
     set(BLAS_ENABLE_COMPLEX OFF)
+  endif()
+  if (BLAS_ENABLE_USM)
+    message(STATUS "USM API is not supported on AdaptiveCpp/hipSYCL. USM API is disabled")
+    set(BLAS_ENABLE_USM OFF)
   endif()
 endif()
 
@@ -79,7 +83,6 @@ set_target_properties(onemath_sycl_blas PROPERTIES
 include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag("-fsycl" is_dpcpp)
 if(is_dpcpp)
-  target_compile_definitions(onemath_sycl_blas INTERFACE "SB_ENABLE_USM")
   check_cxx_compiler_flag("-mllvm=-enable-global-offset=false" support_disable_global_offset)
   if (${support_disable_global_offset})
     if ((${CMAKE_CXX_COMPILER_ID} STREQUAL "IntelLLVM"
@@ -95,6 +98,9 @@ endif()
 if(${BLAS_ENABLE_COMPLEX})
   target_compile_definitions(onemath_sycl_blas INTERFACE "BLAS_ENABLE_COMPLEX")
 endif()
+if(${BLAS_ENABLE_USM})
+  target_compile_definitions(onemath_sycl_blas INTERFACE "SB_ENABLE_USM")
+endif()
 target_compile_definitions(onemath_sycl_blas INTERFACE ${TUNING_TARGET})
 target_compile_options(onemath_sycl_blas INTERFACE -Wno-deprecated-declarations)
 target_compile_options(onemath_sycl_blas INTERFACE -Wno-deprecated-copy-with-user-provided-copy)
@@ -107,15 +113,24 @@ if((${CMAKE_CXX_COMPILER_ID} STREQUAL "IntelLLVM") AND NOT
 endif()
 
 include(CMakePackageConfigHelpers)
-set(version_file "${CMAKE_CURRENT_BINARY_DIR}/cmake/onemath_sycl_blas-version.cmake")
+set(version_file "${CMAKE_CURRENT_BINARY_DIR}/cmake/onemath_sycl_blas-config-version.cmake")
+set(config_file "${CMAKE_CURRENT_BINARY_DIR}/cmake/onemath_sycl_blas-config.cmake")
+set(targets_name "onemath_sycl_blas-targets")
 write_basic_package_version_file(${version_file}
   VERSION ${PROJECT_VERSION}
   COMPATIBILITY AnyNewerVersion
 )
+configure_package_config_file(
+  cmake/config.cmake.in
+  ${config_file}
+  INSTALL_DESTINATION ${CMAKE_INSTALL_PREFIX}
+)
+install(FILES ${version_file} ${config_file}
+  DESTINATION ${CMAKE_INSTALL_PREFIX})
 
 include(GNUInstallDirs)
 install(TARGETS onemath_sycl_blas
-  EXPORT onemath_sycl_blas
+  EXPORT ${targets_name}
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -132,16 +147,9 @@ install(DIRECTORY ${ONEMATH_SYCL_BLAS_INCLUDE}
     FILES_MATCHING PATTERN "*.hpp"
   )
 
-install(FILES ${version_file} DESTINATION ${CMAKE_INSTALL_PREFIX})
-install(EXPORT onemath_sycl_blas
+install(EXPORT ${targets_name}
   DESTINATION ${CMAKE_INSTALL_PREFIX}
   NAMESPACE ONEMATH_SYCL_BLAS::
-  FILE onemath_sycl_blas-config.cmake
-)
-
-export(EXPORT onemath_sycl_blas
-  NAMESPACE ONEMATH_SYCL_BLAS::
-  FILE onemath_sycl_blas-config.cmake
 )
 
 option(BLAS_ENABLE_CONST_INPUT "Whether to enable kernel instantiation with const input buffer" ON)
