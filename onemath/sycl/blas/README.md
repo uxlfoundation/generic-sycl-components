@@ -352,7 +352,7 @@ We do not use any OpenCL interoperability, hence, the code is pure C++.
 The project is developed using [DPCPP open source](https://github.com/intel/llvm)
 or [oneapi release](https://www.intel.com/content/www/us/en/developer/tools/oneapi/base-toolkit.html#gs.2iaved),
 using Ubuntu 22.04 on Intel OpenCL CPU, Intel GPU, NVIDIA GPU and AMD GPU.
-The build system is CMake version 3.4.3 or higher.
+The build system is CMake version 3.13 or higher.
 
 ## Setup
 
