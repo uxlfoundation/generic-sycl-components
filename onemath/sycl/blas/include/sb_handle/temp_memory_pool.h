@@ -23,7 +23,6 @@
 #ifndef TEMP_MEMORY_POOL_H
 #define TEMP_MEMORY_POOL_H
 
-#ifndef __ADAPTIVECPP__
 #include <map>
 #include <mutex>
 
@@ -111,7 +110,5 @@ class Temp_Mem_Pool {
 #endif  // SB_ENABLE_USM
 };
 }  // namespace blas
-
-#endif  // __ADAPTIVECPP__
 
 #endif

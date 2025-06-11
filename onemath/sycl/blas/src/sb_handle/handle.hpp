@@ -42,11 +42,9 @@ typename std::enable_if<
     alloc == helper::AllocType::buffer,
     typename helper::AllocHelper<value_t, alloc>::type>::type
 SB_Handle::acquire_temp_mem(size_t size) {
-#ifndef __ADAPTIVECPP__
   if (tempMemPool_ != nullptr)
     return tempMemPool_->acquire_buff_mem<value_t>(size);
   else
-#endif
     return make_sycl_iterator_buffer<value_t>(size);
 }
 
@@ -58,11 +56,9 @@ typename std::enable_if<
     typename SB_Handle::event_t>::type
 SB_Handle::release_temp_mem(const typename SB_Handle::event_t& dependencies,
                             const container_t& mem) {
-#ifndef __ADAPTIVECPP__
   if (tempMemPool_ != nullptr)
     return tempMemPool_->release_buff_mem(dependencies, mem);
   else
-#endif
     return {};
 }
 
@@ -92,7 +88,11 @@ SB_Handle::release_temp_mem(const typename SB_Handle::event_t& dependencies,
     sycl::context context = q_.get_context();
     return {q_.submit([&](sycl::handler& cgh) {
       cgh.depends_on(dependencies);
+#ifndef __ADAPTIVECPP__
       cgh.host_task([=]() { sycl::free(mem, context); });
+#else
+      cgh.AdaptiveCpp_enqueue_custom_operation([=](sycl::interop_handle &) { sycl::free(mem, context); });
+#endif
     })};
   }
 }
