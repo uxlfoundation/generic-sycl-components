@@ -53,7 +53,11 @@ typename Temp_Mem_Pool::event_t Temp_Mem_Pool::release_buff_mem(
     const container_t& mem) {
   return {q_.submit([&](sycl::handler& cgh) {
     cgh.depends_on(dependencies);
+#ifndef __ADAPTIVECPP__
     cgh.host_task([&, mem]() { release_buff_mem_(mem); });
+#else
+    cgh.AdaptiveCpp_enqueue_custom_operation([&, mem](sycl::interop_handle &) { release_buff_mem_(mem); });
+#endif
   })};
 }
 
@@ -109,7 +113,11 @@ typename Temp_Mem_Pool::event_t Temp_Mem_Pool::release_usm_mem(
     const container_t& mem) {
   return {q_.submit([&](sycl::handler& cgh) {
     cgh.depends_on(dependencies);
+#ifndef __ADAPTIVECPP__
     cgh.host_task([&, mem]() { release_usm_mem_(mem); });
+#else
+    cgh.AdaptiveCpp_enqueue_custom_operation([&, mem](sycl::interop_handle &) { release_usm_mem_(mem); });
+#endif
   })};
 }
 }

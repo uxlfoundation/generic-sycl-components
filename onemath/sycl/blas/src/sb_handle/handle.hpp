@@ -88,7 +88,11 @@ SB_Handle::release_temp_mem(const typename SB_Handle::event_t& dependencies,
     sycl::context context = q_.get_context();
     return {q_.submit([&](sycl::handler& cgh) {
       cgh.depends_on(dependencies);
+#ifndef __ADAPTIVECPP__
       cgh.host_task([=]() { sycl::free(mem, context); });
+#else
+      cgh.AdaptiveCpp_enqueue_custom_operation([=](sycl::interop_handle &) { sycl::free(mem, context); });
+#endif
     })};
   }
 }
