@@ -74,13 +74,6 @@ if (SYCL_COMPILER MATCHES "adaptivecpp" OR ${CMAKE_CXX_COMPILER} MATCHES "acpp|s
       set(BLAS_ENABLE_COMPLEX OFF PARENT_SCOPE)
     endif()
   endif()
-  if (BLAS_ENABLE_USM)
-    message(STATUS "USM API is not supported on AdaptiveCpp/hipSYCL. USM API is disabled")
-    set(BLAS_ENABLE_USM OFF)
-    if (NOT ${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
-      set(BLAS_ENABLE_USM OFF PARENT_SCOPE)
-    endif()
-  endif()
 endif()
 
 add_library(onemath_sycl_blas INTERFACE)
