@@ -98,7 +98,6 @@ ONEMATH_SYCL_BLAS_INLINE
          is_upper, is_transposed, is_unitdiag>::eval(local_memory_t local_mem,
                                                      sycl::nd_item<1> ndItem) {
   value_t ret = 0;
-#ifndef __ADAPTIVECPP__
 
   constexpr bool is_forward =
       (is_upper && is_transposed) || (!is_upper && !is_transposed);
@@ -291,7 +290,6 @@ ONEMATH_SYCL_BLAS_INLINE
 
   sycl::atomic_fence(sycl::memory_order::seq_cst, sycl::memory_scope::device);
 
-#endif
   return ret;
 }
 
